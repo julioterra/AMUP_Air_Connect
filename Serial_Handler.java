@@ -8,9 +8,7 @@ public class Serial_Handler extends Abstract_Handler{
 
 //        static String init_command = "amup_connected";    
         
-        
-        String[] device_list = {};
-        
+                
         static boolean serial_connected = false;
         static boolean amup_connect_requested = false;
         static boolean amup_connected = false;
@@ -44,19 +42,22 @@ public class Serial_Handler extends Abstract_Handler{
       return device_list;
     }
 
-     public void connect(int port_number) {
-        if (port_number < serial_list.length) {
-            port = new Serial(processing_app, Serial.list()[port_number], 57600);
-            port.bufferUntil(10); 
-            serial_connected = true;
-            
-            amup_connected = false;
-            amup_connect_requested = false;
-            last_serial_connection = processing_app.millis();
-            processing_app.println("connected to serial port: " + Serial_Handler.serial_list[port_number]);
-        }
-            else processing_app.println ("ERROR: serial NOT found");
-//            setStatusColor();
+     public boolean connect(int port_number) {
+        if (port_number < device_list.length) {
+            device_number = port_number;
+            try {
+                port = new Serial(processing_app, Serial.list()[device_number], 57600);
+                port.bufferUntil(10); 
+                device_connected = true;   
+            } catch (Exception e) {
+                device_connected = false;
+            }
+        }         
+        if (!device_connected) processing_app.println (name + " NOT found");
+        else processing_app.println(name + "found: " + device_list[port_number]);
+    
+        if (!device_connected) return false;
+        else return true;
     }
 
     public boolean connected() {
@@ -89,11 +90,11 @@ public class Serial_Handler extends Abstract_Handler{
      }
   }
   
-  public void send_msg(byte[] data) {
-      if (new_msg_input.length != 3 || !connected()) return;
-      port.write(data[0]);
-      port.write(data[1]);
-      port.write(data[2]);
+  public void send_msg(byte[] new_msg) {
+      if (new_msg.length != 3 || !connected()) return;
+      port.write(new_msg[0]);
+      port.write(new_msg[1]);
+      port.write(new_msg[2]);
       processing_app.println(" serial sent");
   }
  

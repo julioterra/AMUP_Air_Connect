@@ -5,9 +5,9 @@
 
 public class MIDI_Handler extends Abstract_Handler{
   
-  boolean midi_connected;
+ MidiBus port; // The MidiBus
+
  String midi_device_name = "Traktor";
- boolean midi_found = false;
  int midi_channels[] = {0, 1, 15};
  int msg_count_output = 0;
  byte new_msg_output [] = new byte [3];
@@ -15,26 +15,42 @@ public class MIDI_Handler extends Abstract_Handler{
  final int midi_channel_offset = 176;
  
 
-// shared variables
-  String[] device_list = {};
+//// shared variables
+//  String[] device_list = {};
 
 
   public MIDI_Handler(String _name) {
     super(_name);
-    midi_connected = false;
+    device_connected = false;
     controller_connected = false;
-    // create list of midi devices and notify the controller
+
+    MidiBus.list();
+    device_list = MidiBus.availableInputs();
   }
 
   public String[] device_list() {
     return device_list;
   }
 
-  public void connect(int port_number) {
+  public boolean connect(int port_number) {
+    if (port_number < device_list.length) {
+        device_number = port_number;
+        try {
+            port = new MidiBus(processing_app,  port_number, port_number);
+            device_connected = true;
+        } catch (Exception e) {
+            device_connected = false;
+        }
+    }         
+    if (!device_connected) processing_app.println (name + " NOT found");
+    else processing_app.println(name + "found: " + device_list[port_number]);
+
+    if (!device_connected) return false;
+    else return true;
   }
   
   public boolean connected() {
-    return midi_connected;  
+    return device_connected;  
   }  
 
   public void read(byte[] data) {
@@ -49,9 +65,9 @@ public class MIDI_Handler extends Abstract_Handler{
         }
   }
   
-  public void send(byte[] data) {
-    
-    
+  public void send(byte[] new_msg) {
+      if (new_msg.length != 3 || !connected()) return;
+      port.sendControllerChange((int)new_msg[0], (int)(new_msg[1]), (int)(new_msg[2])); // Send a controllerChange
   }
   
   int channel_count() {
