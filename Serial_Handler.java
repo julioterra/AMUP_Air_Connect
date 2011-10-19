@@ -47,7 +47,7 @@ public class Serial_Handler extends Abstract_Handler{
             device_number = port_number;
             try {
                 port = new Serial(processing_app, Serial.list()[device_number], 57600);
-                port.bufferUntil(10); 
+                port.buffer(1); 
                 device_connected = true;   
             } catch (Exception e) {
                 device_connected = false;
@@ -61,7 +61,7 @@ public class Serial_Handler extends Abstract_Handler{
     }
 
     public boolean connected() {
-      return amup_connected;        
+      return device_connected;        
     }  
 
     public void read() {
@@ -70,7 +70,7 @@ public class Serial_Handler extends Abstract_Handler{
       
     public void read(byte [] new_byte) {
       for (int i = 0; i < new_byte.length; i++) {
-        if ((int)(new_byte[i]) > 127) {
+        if ((int)(new_byte[i]) < 0) {
             msg_count_input = 0;
             new_msg_input[msg_count_input] = new_byte[i];
             msg_count_input++;
@@ -80,11 +80,11 @@ public class Serial_Handler extends Abstract_Handler{
             msg_count_input++;
             if (msg_count_input == 3) {
                 if (controller_connected) {
+                    processing_app.println("sending serial to controller" + (int)new_msg_input[0] + ", "  + (int)new_msg_input[1] + ", "  + (int)new_msg_input[2]);
                     controller.serial_to_midi(new_msg_input);  
                 }
                 msg_count_input = 0;
                 new_msg_input_flag = false;
-                processing_app.println("serial message" + (int)new_msg_input[0] + ", "  + (int)new_msg_input[1] + ", "  + (int)new_msg_input[2]);
             }
         }
      }
@@ -99,55 +99,11 @@ public class Serial_Handler extends Abstract_Handler{
   }
  
 
-  public static void updateMessageStatus(String input) {
-      if(serial_msg.length() > 17) serial_msg = serial_msg.substring(16);
-      else serial_msg = "";
-      serial_msg = "SERIAL MESSAGES\n" + input + serial_msg;
-      if (serial_msg.length() > 500) serial_msg = serial_msg.substring(0, 499);
-  }
-
-  public static void updateMessagePorts(String input) {
-      if(serial_status.length() > 13) serial_status = serial_status.substring(12);
-      else serial_status = "";
-      serial_status = "SERIAL PORT\n" + input + serial_status;
-      if (serial_status.length() > 500) serial_status = serial_status.substring(0, 499);
-  }
-
-
-  public static boolean serialActive(PApplet processing_app) {
-    if (processing_app.millis() - last_serial_connection > connection_interval) {
-          amup_connected = false;
-          serial_connected = false;
-          port.stop();
-          return false; 
-      }
-      return true;
-  }
-
-//        public static void setStatusColor() {
-//            if (amup_connected) status_color = 0xff00cc00;  
-//            else status_color = 0xffcccc00;  
-//        }
-
-    public static void closeSerial() {
-        updateMessagePorts("waiting to start connection\n"); 
-        port.stop();
-        amup_connected = false;
+    public void disconnect() {
         serial_connected = false;
-        amup_connect_requested = false;
-//            setStatusColor();
+        port.stop();
     }
-
-
-//        public static void connectAMUP() {
-//          if (serial_connected && !amup_connect_requested) {
-//            port.write('S');
-//            updateMessageStatus("starting amup connection\n");
-//            amup_connect_requested = true;
-//            if (AMUP_MIDI.debug_code) PApplet.println("starting amup connection");
-//          }
-//        }
-
+    
 }
 
 

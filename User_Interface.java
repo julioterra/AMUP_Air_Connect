@@ -40,9 +40,9 @@ public class User_Interface extends AMUP_element{
 
     public void create_handler_menus(String[] _handler_names, int pos_x, int pos_y) {
         for (int i = 0; i < _handler_names.length; i ++) {
-            pos_x = pos_x + i*150;
-            handler_menus.put(_handler_names[i], create_dropdown(_handler_names[i],pos_x+20,pos_y+15,200,120));
-            handler_toggles.put(_handler_names[i], create_toggle(_handler_names[i],pos_x,pos_y,10,10));
+            pos_x = pos_x + i*250;
+            handler_menus.put(_handler_names[i], create_dropdown(_handler_names[i],pos_x+25,pos_y+16,200,120));
+            handler_toggles.put(_handler_names[i], create_toggle(_handler_names[i],pos_x,pos_y,15,15));
             handler_names.add(_handler_names[i]);
         }  
     }
@@ -96,8 +96,12 @@ public class User_Interface extends AMUP_element{
             for (int i = 0; i < handler_names.size(); i++ ) {
                 if (theEvent.controller().name().contains(handler_names.get(i))) {
                     if (theEvent.controller().value() > 0) {
-                        processing_app.println("GOT MESSAGE " + handler_menus.get(handler_names.get(i)).value() );
+                        processing_app.println(handler_names.get(i) + ": open port " + handler_menus.get(handler_names.get(i)).value() );
                         controller.connect_handler(handler_names.get(i),(int)handler_menus.get(handler_names.get(i)).value()); 
+                    } 
+                    else {
+                        processing_app.println(handler_names.get(i) + ": close port");
+                        controller.disconnect_handler(handler_names.get(i),(int)handler_menus.get(handler_names.get(i)).value());                       
                     }
                 }
             }

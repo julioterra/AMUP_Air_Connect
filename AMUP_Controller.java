@@ -27,7 +27,7 @@ public class AMUP_Controller extends AMUP_element{
     }
     
     user_interface = _user_interface;
-    user_interface.create_handler_menus(handler_name_keys, 20, 100);
+    user_interface.create_handler_menus(handler_name_keys, 20, 20);
 
     for (int i = 0; i < handler_name_keys.length ; i ++) {
       user_interface.add_dropdown_items(handlers.get(handler_name_keys[i]).name, handlers.get(handler_name_keys[i]).device_list());  
@@ -35,14 +35,25 @@ public class AMUP_Controller extends AMUP_element{
   }
   
   public void connect_handler(String _name, int _port_number) {
-      if (handlers.get(_name).connected_device_number() == _port_number) return;
+      if (handlers.get(_name).connected()) return;
+      processing_app.println("GOT to connect..." + handlers.get(_name).connected());
       user_interface.update_toggles(_name, handlers.get(_name).connect(_port_number));  
+  }
+  
+  public void disconnect_handler(String _name, int _port_number) {
+      if (!handlers.get(_name).connected()) return;
+      processing_app.println("GOT to disconnect...");
+      handlers.get(_name).disconnect();
+      user_interface.update_toggles(_name, false);  
   }
   
   
   public void serial_to_midi(byte new_msg []) {
     // check that byte array contains appropriate number of elements and that midi is connected
+     processing_app.println("controller received serial" + (int)new_msg[0] + ", "  + (int)new_msg[1] + ", "  + (int)new_msg[2]);
     if (new_msg.length != 3 || !midi_handler.connected()) return;
+
+     processing_app.println("sending midi from controller" + (int)new_msg[0] + ", "  + (int)new_msg[1] + ", "  + (int)new_msg[2]);
         
     // identify the channel of the current midi message
     MIDI_Handler midi_handler = (MIDI_Handler) handlers.get("midi");    
@@ -66,15 +77,21 @@ public class AMUP_Controller extends AMUP_element{
     }
 }
 
-void midi_to_serial(int channel, int num, int val) {
-    int midi_channel = midi_handler.is_active_channel(channel);
-    
-    // if correct channel was found, then send midi message
-    if (midi_channel > -1) {
-        byte[] new_msg = {(byte)channel, (byte)num, (byte)val};
-        serial_handler.send_msg(new_msg);
-    }
-}
+//  public static void updateMessageStatus(String input) {
+//      if(serial_msg.length() > 17) serial_msg = serial_msg.substring(16);
+//      else serial_msg = "";
+//      serial_msg = "SERIAL MESSAGES\n" + input + serial_msg;
+//      if (serial_msg.length() > 500) serial_msg = serial_msg.substring(0, 499);
+//  }
+//
+//  public static void updateMessagePorts(String input) {
+//      if(serial_status.length() > 13) serial_status = serial_status.substring(12);
+//      else serial_status = "";
+//      serial_status = "SERIAL PORT\n" + input + serial_status;
+//      if (serial_status.length() > 500) serial_status = serial_status.substring(0, 499);
+//  }
+
+
 
   
 }

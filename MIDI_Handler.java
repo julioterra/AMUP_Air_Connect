@@ -8,6 +8,7 @@ public class MIDI_Handler extends Abstract_Handler{
  MidiBus port; // The MidiBus
 
  String midi_device_name = "Traktor";
+ int midi_channels_raw[] = {-80, -79, -65};
  int midi_channels[] = {0, 1, 15};
  int msg_count_output = 0;
  byte new_msg_output [] = new byte [3];
@@ -47,6 +48,12 @@ public class MIDI_Handler extends Abstract_Handler{
 
     if (!device_connected) return false;
     else return true;
+
+  }
+
+  public void disconnect() {
+      device_connected = false;
+      port.stop();
   }
   
   public boolean connected() {
@@ -61,7 +68,7 @@ public class MIDI_Handler extends Abstract_Handler{
 	processing_app.print("Raw Midi Data:");
 	processing_app.print("channel:"+ channel + " num " + num + " val " + val);
         if (controller_connected) {
-            controller.midi_to_serial(channel, num, val);  
+            controller.midi_to_serial(data);  
         }
   }
   
@@ -71,11 +78,11 @@ public class MIDI_Handler extends Abstract_Handler{
   }
   
   int channel_count() {
-    return midi_channels.length; 
+    return midi_channels_raw.length; 
   }
   
   int get_channel(int i) {
-      if (i < midi_channels.length) return midi_channels[i];  
+      if (i < midi_channels_raw.length) return midi_channels_raw[i];  
       else return -1;
   }
   
@@ -84,8 +91,8 @@ public class MIDI_Handler extends Abstract_Handler{
     if (new_msg_channel > midi_channel_offset) new_msg_channel = new_msg_channel - midi_channel_offset;
 
     // check if midi channel is current active
-    for (int i = 0; i < midi_channels.length; i++) {
-        if (midi_channels[i] == new_msg_channel) return new_msg_channel;
+    for (int i = 0; i < midi_channels_raw.length; i++) {
+        if (midi_channels_raw[i] == new_msg_channel) return new_msg_channel;
     } 
     return -1;
   }  

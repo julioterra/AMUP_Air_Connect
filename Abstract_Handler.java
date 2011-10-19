@@ -26,6 +26,9 @@ class Abstract_Handler extends AMUP_element {
     return false;
   }
 
+  public void disconnect() {
+  }  
+
   public boolean connected() {
     return false;
   }  
