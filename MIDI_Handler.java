@@ -1,54 +1,39 @@
-
- import processing.core.PApplet;
- import themidibus.*; //Import the library
-
+import processing.core.PApplet;
+import themidibus.*; 
 
 public class MIDI_Handler extends Abstract_Handler{
   
- MidiBus port; // The MidiBus
-
- String midi_device_name = "Traktor";
- int midi_channels_raw[] = {-80, -79, -65};
- int midi_channels[] = {0, 1, 15};
- int msg_count_output = 0;
- byte new_msg_output [] = new byte [3];
- boolean new_msg_output_flag = false;
- final int midi_channel_offset = 176;
- 
-
-//// shared variables
-//  String[] device_list = {};
-
-
-  public MIDI_Handler(String _name) {
-    super(_name);
-    device_connected = false;
-    controller_connected = false;
-
-    MidiBus.list();
-    device_list = MidiBus.availableInputs();
-  }
-
-  public String[] device_list() {
-    return device_list;
-  }
-
+    MidiBus port; // The MidiBus
+  
+    int midi_channels_raw[] = {-80, -79, -65};
+    int midi_channels[] = {0, 1, 15};
+    int msg_count_output = 0;
+    final int midi_channel_offset = 176;
+   
+    public MIDI_Handler(String _name) {
+        super(_name);
+        device_connected = false;
+        controller_connected = false;
+    
+        MidiBus.list();
+        device_list = MidiBus.availableInputs();
+    }
+  
   public boolean connect(int port_number) {
     if (port_number < device_list.length) {
         device_number = port_number;
         try {
             port = new MidiBus(processing_app,  port_number, port_number);
             device_connected = true;
+            device_name = device_list[device_number];
         } catch (Exception e) {
             device_connected = false;
+            device_name = "";
         }
     }         
-    if (!device_connected) processing_app.println (name + " NOT found");
-    else processing_app.println(name + "found: " + device_list[port_number]);
 
     if (!device_connected) return false;
     else return true;
-
   }
 
   public void disconnect() {
@@ -56,25 +41,21 @@ public class MIDI_Handler extends Abstract_Handler{
       port.stop();
   }
   
-  public boolean connected() {
-    return device_connected;  
-  }  
-
   public void read(byte[] data) {
         int channel = (int)(data[0] & 0xFF);
         int num = (int)(data[1] & 0xFF);
         int val = (int)(data[2] & 0xFF);
         
-	processing_app.print("Raw Midi Data:");
-	processing_app.print("channel:"+ channel + " num " + num + " val " + val);
+//	processing_app.print("Raw Midi Data:");
+//	processing_app.print("channel:"+ channel + " num " + num + " val " + val);
         if (controller_connected) {
             controller.midi_to_serial(data);  
         }
   }
   
-  public void send(byte[] new_msg) {
-      if (new_msg.length != 3 || !connected()) return;
-      port.sendControllerChange((int)new_msg[0], (int)(new_msg[1]), (int)(new_msg[2])); // Send a controllerChange
+  public void send(byte[] data) {
+      if (data.length != 3 || !connected()) return;
+      port.sendControllerChange((int)data[0], (int)(data[1]), (int)(data[2])); // Send a controllerChange
   }
   
   int channel_count() {

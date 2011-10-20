@@ -1,8 +1,9 @@
 
-
+// abstract class that provides an basis for MIDI and Serial handler classes
 class Abstract_Handler extends AMUP_element {
   
   String name;
+  String device_name;
   String[] device_list = {};
   int device_number = -1;
   boolean device_connected = false;
@@ -11,15 +12,19 @@ class Abstract_Handler extends AMUP_element {
     name = _name;  
     device_number = -1;
     device_connected = false;
+    device_name = "";
   }
   
-  public String device_name() {
+  public String name() {
     return name;  
+  }
+
+  public String device_name() {
+    return device_name;  
   }
   
   public String[] device_list() {
-    String[] temp_string = {};
-    return temp_string;
+    return device_list;
   }
 
   public boolean connect(int port_number) {
@@ -30,7 +35,7 @@ class Abstract_Handler extends AMUP_element {
   }  
 
   public boolean connected() {
-    return false;
+    return device_connected;
   }  
 
   public int connected_device_number() {
@@ -38,7 +43,7 @@ class Abstract_Handler extends AMUP_element {
     else return -1;
   }  
       
-  public void read(byte [] new_byte) {
+  public void read(byte[] data) {
   }
   
   public void send_msg(byte[] data) {
