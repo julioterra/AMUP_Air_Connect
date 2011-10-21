@@ -1,4 +1,6 @@
 import processing.core.PApplet;
+import processing.core.PImage;
+import processing.core.*;
 import controlP5.*;
 import java.util.HashMap;
 import java.util.ArrayList;
@@ -19,6 +21,11 @@ public class User_Interface extends AMUP_element{
      HashMap<String, controlP5.Textlabel> handler_text_labels;
      HashMap<String, String> text_messages;
      ArrayList<String> handler_names;
+     controlP5.Textarea explanation_text;
+     PVector base_pos;
+     String user_guidance = "This app connects AMUP to a midi channel. The serial and midi connections need to be established to activate " +
+                            "message routing. Enjoy DJing.";
+     PImage logo;
     
      public User_Interface() {
         controlP5 = new ControlP5(processing_app);
@@ -29,25 +36,30 @@ public class User_Interface extends AMUP_element{
         handler_text_labels = new HashMap<String, controlP5.Textlabel>();
         text_messages = new HashMap<String, String>();
         handler_names = new ArrayList<String>();
+        logo = processing_app.loadImage("logo.png");
+//        processing_app.registerDraw(this);
     }
 
     public void create_handler_menus(String[] _handler_names, int pos_x, int pos_y) {
+        base_pos = new PVector(pos_x, pos_y);
         for (int i = 0; i < _handler_names.length; i ++) {
             pos_x = pos_x + i*250;
-            handler_text.put(_handler_names[i], create_textarea(_handler_names[i],pos_x,pos_y+80,200,120));
-            handler_toggles.put(_handler_names[i], create_toggle(_handler_names[i],pos_x,pos_y+25,15,15));
-            handler_menus.put(_handler_names[i], create_dropdown(_handler_names[i],pos_x,pos_y+20,200,120));
+            handler_text.put(_handler_names[i], create_textarea(_handler_names[i],pos_x,pos_y+31,200,100));
+            handler_toggles.put(_handler_names[i], create_toggle(_handler_names[i],pos_x,pos_y+10,15,15));
+            handler_menus.put(_handler_names[i], create_dropdown(_handler_names[i],pos_x,pos_y+150,200,80));
             text_messages.put(_handler_names[i], "");
             handler_names.add(_handler_names[i]);
         }  
+        explanation_text = controlP5.addTextarea("user guidance", user_guidance, (int)base_pos.x, (int)base_pos.y-30, 450, 30);
+        controlP5.getGroup("user guidance").setColorBackground(0xff000000);
     }
     
 
     Textarea create_textarea(String name, int pos_x, int pos_y, int size_x, int size_y) {
-        Textarea textarea = controlP5.addTextarea(name + "_textarea", "Please activate midi and serial.", pos_x, pos_y +12, size_x, size_y);
+        Textarea textarea = controlP5.addTextarea(name + "_textarea", "Select port from dropdown list below then click to connect.", pos_x, pos_y, size_x, size_y);
         controlP5.getGroup(name + "_textarea").setColorBackground(0xff555555);
         controlP5.getGroup(name + "_textarea").setColorLabel(0xff00ff00);
-        handler_text_labels.put(name, controlP5.addTextlabel(name + "_textarea_label", "messages from: " + name.toUpperCase(), pos_x, pos_y));
+        handler_text_labels.put(name, controlP5.addTextlabel(name + "_textarea_label", (name + " connection   ").toUpperCase(), pos_x + 20, pos_y-16));
         return textarea;
     }
 
@@ -56,7 +68,7 @@ public class User_Interface extends AMUP_element{
         controlP5.controller(name + "_toggle").setColorBackground(0xffff0000);
         controlP5.controller(name + "_toggle").setColorActive(0xff00ff00);
         controlP5.controller(name + "_toggle").captionLabel().setVisible(false);
-        handler_text_labels.put(name, controlP5.addTextlabel(name + "_toggle_label", "click to connect", pos_x + 20, pos_y + 3));
+        handler_text_labels.put(name, controlP5.addTextlabel(name + "_toggle_label", "", pos_x + 20, pos_y + 8));
         return toggle;
     }
 
@@ -71,7 +83,7 @@ public class User_Interface extends AMUP_element{
       ddl.valueLabel().style().marginTop = 3;
       ddl.setColorBackground(processing_app.color(60));
       ddl.setColorActive(processing_app.color(255,128));
-      ddl.setLabel("Select " + name + " from list");
+      ddl.setLabel("Select " + name + " port from list");
       return ddl;
     }
 
@@ -90,6 +102,10 @@ public class User_Interface extends AMUP_element{
         text_messages.put(name, (input + "\n" + text_messages.get(name)));
         if (text_messages.get(name).length() > 1000) text_messages.put(name, text_messages.get(name).substring(0, 499));
         handler_text.get(name).setText(text_messages.get(name));
+    }
+
+    public void draw() {
+        processing_app.image(logo, 285, (int)base_pos.y+185, (float)(logo.width*0.9), (float)(logo.height*0.9));      
     }
 
     // responsible for handling events associated to the user interface

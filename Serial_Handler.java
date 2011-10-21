@@ -28,14 +28,15 @@ public class Serial_Handler extends Abstract_Handler{
             device_number = port_number;
             try {
                 port = new Serial(processing_app, Serial.list()[device_number], 57600);
-                processing_app.delay(4000);
+                processing_app.delay(2000);
+                port.write((byte)0); port.write((byte)0); port.write((byte)0); 
+                processing_app.delay(2000);
                 port.buffer(1); 
                 device_connected = true;   
                 device_name = device_list[device_number];
             } catch (Exception e) {
                 device_connected = false;
                 device_name = "";
-                processing_app.println ("issue with serial connection");
             }
         }         
         if (!device_connected) processing_app.println (name + " NOT found");

@@ -14,7 +14,7 @@ public class AMUP_air_Control  extends PApplet {
  
      void setup () {
          // set the window size:
-        size(600,  300);
+        size(510,  290);
         background(0);
         
         AMUP_element.register_app(this);
@@ -30,6 +30,7 @@ public class AMUP_air_Control  extends PApplet {
     
      void draw () {
          background(0);
+         user_interface.draw();
          // action takes place in the callback methods for Serial, MIDI, and Interface events
      }
     

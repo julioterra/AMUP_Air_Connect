@@ -18,7 +18,7 @@ public class AMUP_Controller extends AMUP_element{
         }
         
         user_interface = _user_interface;
-        user_interface.create_handler_menus(handler_name_keys, 20, 20);
+        user_interface.create_handler_menus(handler_name_keys, 30, 50);
         for (int i = 0; i < handler_name_keys.length ; i ++) {
             user_interface.add_menu_items(handler_name_keys[i], handlers.get(handler_name_keys[i]).device_list());  
         }
